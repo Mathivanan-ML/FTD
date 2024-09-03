@@ -10,8 +10,9 @@ server_socket.bind(socket_file)
 
 server_socket.listen(1)
 
-print("Server is listening")
 while(1):
+
+    print("Server is listening")
     try:
         client_socket,client_address=server_socket.accept()
 
