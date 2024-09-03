@@ -15,8 +15,10 @@ class Client_sockets:
     def send_data(self,data):
         try:
             self.client_socket.sendall(data.encode('utf-8'))
+            return 1
         except BrokenPipeError as e:
             print("Connection has been ended by the server")
+            return 0
 
     def get_resp(self):
         try:
@@ -28,7 +30,9 @@ class Client_sockets:
     def run(self):
         while(1):
             data = input("enter data to be sent")
-            self.send_data(data)
+            fl = self.send_data(data)
+            if fl==0:
+                break
             if data=='q':
                 print("connection terminated by the client")
                 break

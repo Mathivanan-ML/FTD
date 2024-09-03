@@ -22,16 +22,16 @@ class UnixSocket:
     def server_available(self):
         while True:
             try:
-                client_socket, _ = self.server_socket.accept()
+                self.client_socket, _ = self.server_socket.accept()
                 self.handle_Client()
             except Exception as e:
                 print(f"Error accepting client: {e}")
 
-    def handleClient(self):
+    def handle_Client(self):
         print("Client Connected")
         try:
             while True:
-                self.data = self.client_socket.recv(1024)
+                self.data = self.client_socket.recv(self.size_of_msg)
                 if not self.data:
                     print("Client disconnected")
                     break
