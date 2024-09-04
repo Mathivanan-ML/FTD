@@ -5,8 +5,12 @@ class UnixSocket:
         self.socket_file=socket_file
         self.size_of_msg=int(size_of_msg)
         self.listeners=int(listeners)
-        self.sock_type = sock_type
-        self.sock_add = sock_add
+        if sock_type=='SOCK_STREAM':
+            self.sock_type = socket.SOCK_STREAM
+        if sock_add == 'AF_UNIX':
+            self.sock_add = socket.AF_UNIX
+       
+      
 
         self.setup()
     def setup(self):

@@ -6,8 +6,11 @@ class Client_sockets:
 
     def __init__(self,sock_path,sock_type,sock_address,buffer_size):
         self.sock_path = sock_path
-        self.sock_type = sock_type
-        self.sock_address = sock_address
+        if sock_type=='SOCK_STREAM':
+            self.sock_type = socket.SOCK_STREAM
+        if sock_address== 'AF_UNIX':
+            self.sock_address = socket.AF_UNIX
+
         self.buffer_size = buffer_size
     
         self.start()
@@ -15,7 +18,6 @@ class Client_sockets:
         current_dir = os.getcwd()
         file_name = self.data
         file_path = os.path.join(current_dir, file_name)
-        print(file_path)
         if(os.path.isfile(file_path)):
             with open(file_name, 'r') as f:
                 self.data = f.read()
