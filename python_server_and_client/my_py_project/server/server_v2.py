@@ -1,16 +1,18 @@
 import os
 import socket
 class UnixSocket:
-    def __init__(self,socket_file,size_of_msg,listeners):
+    def __init__(self,socket_file,sock_type,sock_add,size_of_msg,listeners):
         self.socket_file=socket_file
-        self.size_of_msg=size_of_msg
-        self.listeners=listeners
+        self.size_of_msg=int(size_of_msg)
+        self.listeners=int(listeners)
+        self.sock_type = sock_type
+        self.sock_add = sock_add
 
         self.setup()
     def setup(self):
         if os.path.exists(self.socket_file):
             os.remove(self.socket_file)
-        self.server_socket=socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.server_socket=socket.socket(self.sock_add, self.sock_type)
 
         self.server_socket.bind(self.socket_file)
 
@@ -75,8 +77,4 @@ class UnixSocket:
             print("Received invalid JSON")
 
 
-if __name__=='__main__':
-    server=UnixSocket("/tmp/my_socket",1024,1)
-    server.server_socket.close()
-    os.remove(server.socket_file)
 

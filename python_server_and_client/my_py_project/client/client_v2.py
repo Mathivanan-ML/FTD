@@ -1,10 +1,10 @@
 import os
 import socket
-
+from config import load_client_config
 
 class Client_sockets:
 
-    def __init__(self,sock_path,sock_type=socket.SOCK_STREAM,sock_address=socket.AF_UNIX,buffer_size=1024):
+    def __init__(self,sock_path,sock_type,sock_address,buffer_size):
         self.sock_path = sock_path
         self.sock_type = sock_type
         self.sock_address = sock_address
@@ -83,10 +83,10 @@ class Client_sockets:
             print("socket has already closed",e)
 
 
-if __name__=="__main__":
+#if __name__=="__main__":
     #sock_path = input("Enter your path where your server is listening")
-    sock_path = "/tmp/my_socket"
-    client = Client_sockets(sock_path)
+  #  sock_path = "/tmp/my_socket"
+ #   client = Client_sockets(sock_path)
 
 
 
