@@ -31,23 +31,28 @@ class UnixSocket:
         print("Client Connected")
         try:
             while True:
-                self.data = self.client_socket.recv(self.size_of_msg)
-                if not self.data:
+                msg_type = self.client_socket.recv(10).decode('utf-8').strip()
+                if not msg_type:
                     print("Client disconnected")
                     break
 
-                self.message = self.data.decode()
-                if self.message == 'q':
-                    print("Client sent 'q', disconnecting")
-                    break
-
-                print(f"Received: {self.message}")
-
-                self.response = input("Enter a Msg: ")
-                if(self.response=='q'):
-                    exit(0)
-                self.client_socket.sendall(self.response.encode('utf-8'))
-
+                # Receive the data
+                data = b''
+                while True:
+                    chunk = self.client_socket.recv(self.size_of_msg)
+                    data += chunk
+                    if len(chunk) < self.size_of_msg:
+                        break
+                if msg_type == 'txt':
+                    self.save_file(data)
+                elif msg_type == 'json':
+                    self.process_json(data)
+                else:
+                    print(f"Received: {data.decode()}")
+                    response = input("Enter a Msg: ")
+                    if response == 'q':
+                        exit(0)
+                    self.client_socket.sendall(response.encode('utf-8'))
         except BrokenPipeError:
             print("Connection terminated by the client")
         except Exception as e:
@@ -55,6 +60,19 @@ class UnixSocket:
         finally:
             self.client_socket.close()
 
+    def save_file(self, data):
+        # Save the file received from the client
+        with open('received_file', 'wb') as f:
+            f.write(data)
+        print("File saved as 'received_file'")
+
+    def process_json(self, data):
+        # Process JSON data
+        try:
+            json_data = json.loads(data.decode('utf-8'))
+            print(f"Received JSON: {json_data}")
+        except json.JSONDecodeError:
+            print("Received invalid JSON")
 
 
 if __name__=='__main__':

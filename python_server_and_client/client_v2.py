@@ -9,12 +9,32 @@ class Client_sockets:
         self.sock_type = sock_type
         self.sock_address = sock_address
         self.buffer_size = buffer_size
-        self.start()
     
+        self.start()
+    def find_msg_type(self):
+        current_dir = os.getcwd()
+        file_name = self.data
+        file_path = os.path.join(current_dir, file_name)
+        print(file_path)
+        if(os.path.isfile(file_path)):
+            with open(file_name, 'r') as f:
+                self.data = f.read()
+                return 'txt'
+        elif type(self.data)==str:
+            return 'string'
+        elif type(self.data)==dict:
+            return 'json'
 
-    def send_data(self,data):
+        
+
+
+    def send_data(self):
         try:
-            self.client_socket.sendall(data.encode('utf-8'))
+            #self.data=input("Enter a msg or File name ")
+            self.msg_type=self.find_msg_type()
+
+            self.client_socket.sendall(self.msg_type.encode('utf-8').ljust(10))
+            self.client_socket.sendall(self.data.encode('utf-8'))
             return 1
         except BrokenPipeError as e:
             print("Connection has been ended by the server")
@@ -29,11 +49,11 @@ class Client_sockets:
 
     def run(self):
         while(1):
-            data = input("enter data to be sent")
-            fl = self.send_data(data)
+            self.data = input("enter data to be sent json or string or text file")
+            fl = self.send_data()
             if fl==0:
                 break
-            if data=='q':
+            if self.data=='q':
                 print("connection terminated by the client")
                 break
             resp = self.get_resp()
