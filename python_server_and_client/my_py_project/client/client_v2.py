@@ -3,6 +3,7 @@ import socket
 import signal
 import sys
 from config import load_client_config
+import Logger
 
 class Client_sockets:
 
@@ -32,8 +33,9 @@ class Client_sockets:
     def connect(self):
         try:
             self.client_socket.connect(self.sock_path)
-            self.run()
-
+            print(self.client_socket)
+            self.run()   
+            
         except Exception as e:
             print("Error happened in client connection",e)
 
