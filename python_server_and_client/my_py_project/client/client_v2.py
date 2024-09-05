@@ -17,48 +17,25 @@ class Client_sockets:
         self.running=True
     
         self.start()
-    def find_msg_type(self):
-        current_dir = os.getcwd()
-        file_name = self.data
-        file_path = os.path.join(current_dir, file_name)
-        if(os.path.isfile(file_path)):
-            with open(file_name, 'r') as f:
-                self.data = f.read()
-                return 'txt'
-        elif type(self.data)==str:
-            return 'string'
-        elif type(self.data)==dict:
-            return 'json'
-
-    def shutdown(self, signum=None, frame=None):
-        print("Shutdown signal received. Closing client...")
-        self.running = False
-        if hasattr(self, 'client_socket'):
-            self.client_socket.close()
-            sys.exit(0)
-    def register_signal_handlers(self):
-        signal.signal(signal.SIGINT, self.shutdown)
-        signal.signal(signal.SIGTERM, self.shutdown)
 
 
-    def send_data(self):
+    def start(self):
         try:
-            #self.data=input("Enter a msg or File name ")
-            self.msg_type=self.find_msg_type()
-
-            self.client_socket.sendall(self.msg_type.encode('utf-8').ljust(10))
-            self.client_socket.sendall(self.data.encode('utf-8'))
-            return 1
-        except BrokenPipeError as e:
-            print("Connection has been ended by the server")
-            return 0
-
-    def get_resp(self):
-        try:
-            response = self.client_socket.recv(self.buffer_size)
+            self.client_socket = socket.socket(self.sock_address,self.sock_type)
+            self.connect()
+            self.register_signal_handlers()
         except Exception as e:
-            print("Error in receiving data",e)
-        return response.decode()
+            print("Error happened in socket creation",e)
+        finally:
+            self.close()
+
+    def connect(self):
+        try:
+            self.client_socket.connect(self.sock_path)
+            self.run()
+
+        except Exception as e:
+            print("Error happened in client connection",e)
 
     def run(self):
         
@@ -78,26 +55,51 @@ class Client_sockets:
                 break
             resp = self.get_resp()
             print("Received data from server: ",resp)
+    
+    
+    def register_signal_handlers(self):
+        signal.signal(signal.SIGINT, self.shutdown)
+        signal.signal(signal.SIGTERM, self.shutdown)
 
-    def connect(self):
+    def send_data(self):
         try:
-            self.client_socket.connect(self.sock_path)
-            
-            self.run()
+            #self.data=input("Enter a msg or File name ")
+            self.msg_type=self.find_msg_type()
 
-        except Exception as e:
-            print("Error happened in client connection",e)
+            self.client_socket.sendall(self.msg_type.encode('utf-8').ljust(10))
+            self.client_socket.sendall(self.data.encode('utf-8'))
+            return 1
+        except BrokenPipeError as e:
+            print("Connection has been ended by the server")
+            return 0
 
 
-    def start(self):
+    def find_msg_type(self):
+        current_dir = os.getcwd()
+        file_name = self.data
+        file_path = os.path.join(current_dir, file_name)
+        if(os.path.isfile(file_path)):
+            with open(file_name, 'r') as f:
+                self.data = f.read()
+                return 'txt'
+        elif type(self.data)==str:
+            return 'string'
+        elif type(self.data)==dict:
+            return 'json'
+
+    def get_resp(self):
         try:
-            self.client_socket = socket.socket(self.sock_address,self.sock_type)
-            self.connect()
-            self.register_signal_handlers()
+            response = self.client_socket.recv(self.buffer_size)
         except Exception as e:
-            print("Error happened in socket creation",e)
-        finally:
-            self.close()
+            print("Error in receiving data",e)
+        return response.decode()
+
+    def shutdown(self, signum=None, frame=None):
+        print("Shutdown signal received. Closing client...")
+        self.running = False
+        if hasattr(self, 'client_socket'):
+            self.client_socket.close()
+            sys.exit(0)    
 
     def close(self):
         try:
@@ -106,10 +108,6 @@ class Client_sockets:
             print("socket has already closed",e)
 
 
-#if __name__=="__main__":
-    #sock_path = input("Enter your path where your server is listening")
-  #  sock_path = "/tmp/my_socket"
- #   client = Client_sockets(sock_path)
 
 
 
