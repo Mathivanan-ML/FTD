@@ -30,7 +30,7 @@ class Client_sockets:
         elif type(self.data)==dict:
             return 'json'
 
-    def shutdown(self):
+    def shutdown(self, signum=None, frame=None):
         print("Shutdown signal received. Closing client...")
         self.running = False
         if hasattr(self, 'client_socket'):
