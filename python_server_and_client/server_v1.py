@@ -12,7 +12,7 @@ server_socket.listen(1)
 
 while(1):
 
-    print("Server is listening")
+    print("Server is listening......")
     try:
         client_socket,client_address=server_socket.accept()
 

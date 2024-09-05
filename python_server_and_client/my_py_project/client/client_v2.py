@@ -1,5 +1,7 @@
 import os
 import socket
+import signal
+import sys
 from config import load_client_config
 
 class Client_sockets:
@@ -12,6 +14,7 @@ class Client_sockets:
             self.sock_address = socket.AF_UNIX
 
         self.buffer_size = buffer_size
+        self.running=True
     
         self.start()
     def find_msg_type(self):
@@ -27,7 +30,15 @@ class Client_sockets:
         elif type(self.data)==dict:
             return 'json'
 
-        
+    def shutdown(self):
+        print("Shutdown signal received. Closing client...")
+        self.running = False
+        if hasattr(self, 'client_socket'):
+            self.client_socket.close()
+            sys.exit(0)
+    def register_signal_handlers(self):
+        signal.signal(signal.SIGINT, self.shutdown)
+        signal.signal(signal.SIGTERM, self.shutdown)
 
 
     def send_data(self):
@@ -50,8 +61,15 @@ class Client_sockets:
         return response.decode()
 
     def run(self):
-        while(1):
-            self.data = input("enter data to be sent json or string or text file")
+        
+        while(self.running):
+            try:
+                self.register_signal_handlers()
+                self.data = input("enter data to be sent json or string or text file")
+                
+            except Exception as e:
+                if self.running:
+                    print(f"Error accepting client: {e}")
             fl = self.send_data()
             if fl==0:
                 break
@@ -64,7 +82,9 @@ class Client_sockets:
     def connect(self):
         try:
             self.client_socket.connect(self.sock_path)
+            
             self.run()
+
         except Exception as e:
             print("Error happened in client connection",e)
 
@@ -73,6 +93,7 @@ class Client_sockets:
         try:
             self.client_socket = socket.socket(self.sock_address,self.sock_type)
             self.connect()
+            self.register_signal_handlers()
         except Exception as e:
             print("Error happened in socket creation",e)
         finally:
