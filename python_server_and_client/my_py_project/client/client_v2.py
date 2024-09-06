@@ -3,11 +3,11 @@ import socket
 import signal
 import sys
 from config import load_client_config
-import Logger
+from Logger import *
 
 class Client_sockets:
 
-    def __init__(self,sock_path,sock_type,sock_address,buffer_size):
+    def __init__(self,sock_path,sock_type,sock_address,buffer_size,id):
         self.sock_path = sock_path
         if sock_type=='SOCK_STREAM':
             self.sock_type = socket.SOCK_STREAM
@@ -16,6 +16,7 @@ class Client_sockets:
 
         self.buffer_size = buffer_size
         self.running=True
+        self.client_id =id
     
         self.start()
 
@@ -23,6 +24,8 @@ class Client_sockets:
     def start(self):
         try:
             self.client_socket = socket.socket(self.sock_address,self.sock_type)
+            
+
             self.connect()
             self.register_signal_handlers()
         except Exception as e:
@@ -33,7 +36,9 @@ class Client_sockets:
     def connect(self):
         try:
             self.client_socket.connect(self.sock_path)
-            print(self.client_socket)
+            print(self.client_socket.getsockname())
+            
+            
             self.run()   
             
         except Exception as e:

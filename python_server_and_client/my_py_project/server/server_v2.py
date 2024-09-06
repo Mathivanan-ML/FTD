@@ -3,8 +3,9 @@ import socket
 import json
 import signal
 import sys
-
+from Logger import *
 class UnixSocket:
+    
     def __init__(self, socket_file, sock_type, sock_add, size_of_msg, listeners):
         self.socket_file = socket_file
         self.size_of_msg = int(size_of_msg)
@@ -13,7 +14,7 @@ class UnixSocket:
 
         self.sock_type = socket.SOCK_STREAM if sock_type == 'SOCK_STREAM' else None
         self.sock_add = socket.AF_UNIX if sock_add == 'AF_UNIX' else None
-
+        self.idd=0
         if self.sock_type is None or self.sock_add is None:
             raise ValueError("Invalid socket type or address family")
 
@@ -39,6 +40,9 @@ class UnixSocket:
         while self.running:
             try:
                 self.client_socket, _ = self.server_socket.accept()
+                
+                Logger(self.client_socket.fileno(),self.idd)
+                self.idd=self.idd+1
                 self.handle_client()
             except Exception as e:
                 if self.running:
@@ -46,6 +50,7 @@ class UnixSocket:
 
     def handle_client(self):
         print("Client Connected")
+
         try:
             while True:
                 msg_type = self.client_socket.recv(10).decode('utf-8').strip()
