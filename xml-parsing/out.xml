@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<employees>
+    <employee>
+        <id>1</id>
+        <firstName>Mathi</firstName>
+        <lastName>M</lastName>
+        <income>50000.0</income>
+    </employee>
+    <employee>
+        <id>2</id>
+        <firstName>Mohan</firstName>
+        <lastName>P</lastName>
+        <income>30000.0</income>
+    </employee>
+</employees>
