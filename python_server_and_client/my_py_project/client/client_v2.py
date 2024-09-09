@@ -1,6 +1,6 @@
 import os
 import socket
-import signal
+import signal,select
 import sys
 from config import load_client_config
 from Logger import *
@@ -17,15 +17,21 @@ class Client_sockets:
         self.buffer_size = buffer_size
         self.running=True
         self.client_id =id
-    
+        self.max_req = 3
+        self.cur_cnt = 0
+        self.timeout = 3
+        
+        
         self.start()
 
 
     def start(self):
         try:
+            self.cur_cnt+=1
+            if self.cur_cnt>=self.max_req+1:
+                self.close()
+                exit(0)
             self.client_socket = socket.socket(self.sock_address,self.sock_type)
-            
-
             self.connect()
             self.register_signal_handlers()
         except Exception as e:
@@ -49,7 +55,18 @@ class Client_sockets:
         while(self.running):
             try:
                 self.register_signal_handlers()
-                self.data = input("enter data to be sent json or string or text file")
+                print("Enter a msg or json or txt file: ")
+                rlist, _, _ = select.select([sys.stdin], [], [], self.timeout) 
+                if rlist: 
+                    self.cur_cnt = 0
+                    self.data = input()
+                    
+                else: 
+                    print("Retrying...")
+                    self.close()
+                    self.start()
+                    return
+                # self.data = input("enter data to be sent json or string or text file")
                 
             except Exception as e:
                 if self.running:
